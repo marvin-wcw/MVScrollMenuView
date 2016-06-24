@@ -19,6 +19,8 @@ typedef enum
 
 @interface MVScrollMenuView () <UIGestureRecognizerDelegate>
 
+@property (nonatomic, readonly, strong) MVScrollMenu *currentMenu;
+
 @property (nonatomic, assign) CGPoint preLocation;
 @property (nonatomic, assign) MVScrollDirection scrollDirection;
 
@@ -40,6 +42,7 @@ typedef enum
         
         [self resetLocation];
         _scrollDirection = MVScrollDirectionNone;
+        _pressDuration = 0.3f;
         
         _verticalMenu = [[MVScrollMenu alloc] initWithMenuDirection:MVScrollMenuDirectionVertical];
         _verticalMenu.enabled = YES;
@@ -53,7 +56,7 @@ typedef enum
         _panGesture.delegate = self;
         _pressGesture.numberOfTouchesRequired = 1;
         _pressGesture.cancelsTouchesInView = YES;
-        _pressGesture.minimumPressDuration = 0.2f;
+        _pressGesture.minimumPressDuration = _pressDuration;
         [self addGestureRecognizer:_pressGesture];
         
         _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
@@ -63,9 +66,24 @@ typedef enum
         _panGesture.cancelsTouchesInView = YES;
         [self addGestureRecognizer:_panGesture];
         
+        self.enabled = YES;
     }
     
     return self;
+}
+
+- (void)setEnabled:(BOOL)enabled
+{
+    _enabled = enabled;
+    
+    _pressGesture.enabled = enabled;
+    _panGesture.enabled = enabled;
+}
+
+- (void)setPressDuration:(CGFloat)pressDuration
+{
+    _pressDuration = pressDuration;
+    _pressGesture.minimumPressDuration = _pressDuration;
 }
 
 #pragma mark - Gesture Event
@@ -143,8 +161,30 @@ typedef enum
             {
                 [_delegate scrollMenuView:self didSelectItemIndex:_currentMenu.selectedItemIndex];
             }
+            
+            _currentMenu = nil;
         }
     }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    if (gestureRecognizer == _panGesture && otherGestureRecognizer == _pressGesture)
+    {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    if (gestureRecognizer == _pressGesture || gestureRecognizer == _panGesture)
+    {
+       return ([touch.view isEqual:self]);
+    }
+    
+    return NO;
 }
 
 - (void)resetLocation

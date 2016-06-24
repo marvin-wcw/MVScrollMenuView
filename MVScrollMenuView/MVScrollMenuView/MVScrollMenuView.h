@@ -18,7 +18,9 @@
 
 @property (nonatomic, readonly, strong) MVScrollMenu *verticalMenu;
 @property (nonatomic, readonly, strong) MVScrollMenu *horizontalMenu;
-@property (nonatomic, readonly, strong) MVScrollMenu *currentMenu;
+
+@property (nonatomic, assign) BOOL enabled;
+@property (nonatomic, assign) CGFloat pressDuration;
 
 @property (nonatomic,weak) id<MVScrollMenuViewDelegate> delegate;
 

@@ -35,6 +35,7 @@
     _scrollMenuView = [[MVScrollMenuView alloc] initWithSuperview:self.view frame:self.view.bounds];
     [_scrollMenuView.verticalMenu setMenuTitleArray:@[@"VOL", @"MACD", @"KDJ", @"RSI"]];
     _scrollMenuView.verticalMenu.centerOffset = CGSizeMake(40.f, 40.f);
+    [_scrollMenuView.verticalMenu setSelectedItemIndex:3];
 //    _scrollMenuView.verticalMenu.backgroundColor = [UIColor grayColor];
 
     [_scrollMenuView.horizontalMenu setMenuTitleArray:@[@"5分", @"15分", @"20分", @"日K", @"周K", @"月K"]];
