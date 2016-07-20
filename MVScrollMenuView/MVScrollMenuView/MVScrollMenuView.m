@@ -26,6 +26,8 @@ typedef enum
 
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) UILongPressGestureRecognizer *pressGesture;
+@property (nonatomic, assign) BOOL shouldReceiveTapGestureRecognizer;
+@property (nonatomic, assign) BOOL shouldReceivePanGestureRecognizer;
 
 @end
 
@@ -37,8 +39,7 @@ typedef enum
         
         self.backgroundColor = [UIColor clearColor];
         
-        [superview addSubview:self];
-        [superview sendSubviewToBack:self];
+        [superview insertSubview:self atIndex:0];
         
         [self resetLocation];
         _scrollDirection = MVScrollDirectionNone;
@@ -53,18 +54,21 @@ typedef enum
         [self addSubview:_horizontalMenu];
         
         _pressGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(pressGesture:)];
-        _panGesture.delegate = self;
+        _pressGesture.delegate = self;
         _pressGesture.numberOfTouchesRequired = 1;
         _pressGesture.cancelsTouchesInView = YES;
         _pressGesture.minimumPressDuration = _pressDuration;
-        [self addGestureRecognizer:_pressGesture];
+        [superview addGestureRecognizer:_pressGesture];
         
         _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)];
         _panGesture.delegate = self;
         _panGesture.minimumNumberOfTouches = 1;
         _panGesture.maximumNumberOfTouches = 1;
         _panGesture.cancelsTouchesInView = YES;
-        [self addGestureRecognizer:_panGesture];
+        [superview addGestureRecognizer:_panGesture];
+        
+        _shouldReceivePanGestureRecognizer = YES;
+        _shouldReceiveTapGestureRecognizer = YES;
         
         self.enabled = YES;
     }
@@ -90,24 +94,41 @@ typedef enum
 
 - (void)pressGesture:(UILongPressGestureRecognizer *)pressGesture
 {
-    if (_delegate && [_delegate respondsToSelector:@selector(scrollMenuView:shouldReceiveGestureRecognizer:)] && ![_delegate scrollMenuView:self shouldReceiveGestureRecognizer:pressGesture])
+    CGPoint point = [pressGesture locationInView:self];
+    if (pressGesture.state == UIGestureRecognizerStateBegan && !CGRectContainsPoint(self.bounds, point))
     {
         return;
     }
-    
-    NSLog(@"Press Ignore");
+
+    if (pressGesture.state == UIGestureRecognizerStateBegan || pressGesture.state == UIGestureRecognizerStateChanged)
+    {
+        _panGesture.enabled = NO;
+    }
+    else
+    {
+        _panGesture.enabled = YES;
+    }
 }
 
 - (void)panGesture:(UIPanGestureRecognizer *)panGesture
 {
-    if (_delegate && [_delegate respondsToSelector:@selector(scrollMenuView:shouldReceiveGestureRecognizer:)] && ![_delegate scrollMenuView:self shouldReceiveGestureRecognizer:panGesture])
-    {
-        return;
-    }
-    
     if (panGesture.state == UIGestureRecognizerStateBegan || panGesture.state == UIGestureRecognizerStateChanged)
     {
         CGPoint point = [panGesture locationInView:self];
+        if (panGesture.state == UIGestureRecognizerStateBegan && !CGRectContainsPoint(self.bounds, point))
+        {
+            return;
+        }
+        
+        if (panGesture.state == UIGestureRecognizerStateBegan)
+        {
+            _shouldReceivePanGestureRecognizer = [self shouldReceiveGestureRecognizer:panGesture];
+        }
+        if (!_shouldReceivePanGestureRecognizer)
+        {
+            return;
+        }
+        
         if ([self isValidLocation])
         {
             if (_scrollDirection == MVScrollDirectionNone)
@@ -181,7 +202,7 @@ typedef enum
 {
     if (gestureRecognizer == _pressGesture || gestureRecognizer == _panGesture)
     {
-       return ([touch.view isEqual:self]);
+        return YES;
     }
     
     return NO;
@@ -195,6 +216,18 @@ typedef enum
 - (BOOL)isValidLocation
 {
     return _preLocation.x >= 0.f && _preLocation.y >= 0.f;
+}
+
+- (BOOL)shouldReceiveGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+{
+    NSLog(@"shouldReceiveGestureRecognizer");
+    
+    if (_delegate && [_delegate respondsToSelector:@selector(scrollMenuView:shouldReceiveGestureRecognizer:)] && ![_delegate scrollMenuView:self shouldReceiveGestureRecognizer:gestureRecognizer])
+    {
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end

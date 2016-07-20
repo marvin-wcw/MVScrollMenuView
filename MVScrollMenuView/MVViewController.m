@@ -30,16 +30,23 @@
     [bbt addTarget:self action:@selector(ffkkAction) forControlEvents:UIControlEventTouchUpInside];
     bbt.backgroundColor = [UIColor redColor];
     [self.view addSubview:bbt];
+}
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
     
-    _scrollMenuView = [[MVScrollMenuView alloc] initWithSuperview:self.view frame:self.view.bounds];
-    [_scrollMenuView.verticalMenu setMenuTitleArray:@[@"VOL", @"MACD", @"KDJ", @"RSI"]];
-    _scrollMenuView.verticalMenu.centerOffset = CGSizeMake(40.f, 40.f);
-    [_scrollMenuView.verticalMenu setSelectedItemIndex:3];
-//    _scrollMenuView.verticalMenu.backgroundColor = [UIColor grayColor];
-
-    [_scrollMenuView.horizontalMenu setMenuTitleArray:@[@"5分", @"15分", @"20分", @"日K", @"周K", @"月K"]];
-//    _scrollMenuView.horizontalMenu.backgroundColor = [UIColor grayColor];
+    if (_scrollMenuView == nil)
+    {
+        _scrollMenuView = [[MVScrollMenuView alloc] initWithSuperview:self.view.superview frame:CGRectMake(100, 100, 200, 200)];
+        [_scrollMenuView.verticalMenu setMenuTitleArray:@[@"VOL", @"MACD", @"KDJ", @"RSI"]];
+        _scrollMenuView.verticalMenu.centerOffset = CGSizeMake(40.f, 40.f);
+        [_scrollMenuView.verticalMenu setSelectedItemIndex:3];
+        //    _scrollMenuView.verticalMenu.backgroundColor = [UIColor grayColor];
+        
+        [_scrollMenuView.horizontalMenu setMenuTitleArray:@[@"5分", @"15分", @"20分", @"日K", @"周K", @"月K"]];
+        //    _scrollMenuView.horizontalMenu.backgroundColor = [UIColor grayColor];
+    }
 }
 
 - (void)ffkkAction
