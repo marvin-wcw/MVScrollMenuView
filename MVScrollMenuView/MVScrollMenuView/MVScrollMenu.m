@@ -67,8 +67,8 @@
 {
     if (menuTitleArray && [menuTitleArray count] > 0)
     {
-        [_menuItemArray removeAllObjects];
         [_menuItemArray makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        [_menuItemArray removeAllObjects];
         
         NSInteger count = [menuTitleArray count];
         for (NSInteger i = 0; i < count; ++i)

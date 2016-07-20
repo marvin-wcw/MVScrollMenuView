@@ -51,8 +51,8 @@
 
 - (void)ffkkAction
 {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"ok" message:@"sure" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"ok", nil];
-    [alert show];
+    [_scrollMenuView.horizontalMenu setMenuTitleArray:@[@"ffkk", @"aabb", @"kkkk"]];
+    [_scrollMenuView.horizontalMenu setSelectedItemIndex:1];
 }
 
 - (void)didReceiveMemoryWarning {
