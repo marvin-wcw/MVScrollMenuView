@@ -117,6 +117,7 @@ typedef enum
         CGPoint point = [panGesture locationInView:self];
         if (panGesture.state == UIGestureRecognizerStateBegan && !CGRectContainsPoint(self.bounds, point))
         {
+            _shouldReceivePanGestureRecognizer = NO;
             return;
         }
         
@@ -210,12 +211,12 @@ typedef enum
 
 - (void)resetLocation
 {
-    _preLocation = CGPointMake(-1.f, -1.f);
+    _preLocation = CGPointMake(CGFLOAT_MIN, CGFLOAT_MIN);
 }
 
 - (BOOL)isValidLocation
 {
-    return _preLocation.x >= 0.f && _preLocation.y >= 0.f;
+    return _preLocation.x != CGFLOAT_MIN && _preLocation.y != CGFLOAT_MIN;
 }
 
 - (BOOL)shouldReceiveGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
