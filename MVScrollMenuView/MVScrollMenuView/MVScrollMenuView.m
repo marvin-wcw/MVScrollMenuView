@@ -148,7 +148,7 @@ typedef enum
                     _scrollDirection = MVScrollDirectionHorizontal;
                 }
                 
-                if (_currentMenu.enabled && [_currentMenu itemCount] > 0 && CGRectContainsPoint(_currentMenu.hotArea, point))
+                if (_currentMenu.enabled && [_currentMenu itemCount] > 0 && (CGRectIsEmpty(_currentMenu.hotArea) || CGRectContainsPoint(_currentMenu.hotArea, point)))
                 {
                     [_currentMenu scrollBegin];
                 }
@@ -203,6 +203,10 @@ typedef enum
 {
     if (gestureRecognizer == _pressGesture || gestureRecognizer == _panGesture)
     {
+        CGPoint point = [gestureRecognizer locationInView:self];
+        NSLog(@"%ld", gestureRecognizer.state);
+        NSLog(@"%lf, %lf", point.x, point.y);
+        
         return YES;
     }
     

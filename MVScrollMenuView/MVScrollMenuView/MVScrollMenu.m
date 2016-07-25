@@ -84,7 +84,7 @@
         _activeItem = [[MVScrollMenuItem alloc] initWithTitle:@""];
         _activeItem.hidden = YES;
         _activeItem.font = _itemHighlightFont;
-        _activeItem.frame = CGRectMake(self.superview.center.x + _centerOffset.width - _itemSize.width / 2.f, self.superview.center.y + _centerOffset.height - _itemSize.height / 2.0, _itemSize.width, _itemSize.height);
+        
         [self addSubview:_activeItem];
 
         [self updateSubviews];
@@ -117,13 +117,17 @@
     _activeItem.hidden = NO;
     
     UIView *superview = self.superview;
+    CGSize superSize = superview.bounds.size;
+    CGSize selfSize = self.bounds.size;
+    CGFloat x = (superSize.width - selfSize.width) / 2.f + _centerOffset.width;
+    CGFloat y = (superSize.height - selfSize.height) / 2.f + _centerOffset.height;
     
     if (_menuDirection == MVScrollMenuDirectionVertical)
     {
         CGRect menuFrame = self.frame;
         CGFloat newY = menuFrame.origin.y + offset;
-        CGFloat minY = superview.center.y + _centerOffset.height - CGRectGetHeight(self.frame) + _itemSize.height / 2.f + _edgeInsets.bottom;
-        CGFloat maxY = superview.center.y + _centerOffset.height - _itemSize.height / 2.f - _edgeInsets.top;
+        CGFloat minY = superSize.height / 2.f + _centerOffset.height - CGRectGetHeight(self.frame) + _itemSize.height / 2.f + _edgeInsets.bottom;
+        CGFloat maxY = superSize.height / 2.f + _centerOffset.height - _itemSize.height / 2.f - _edgeInsets.top;
         if (newY < minY)
         {
             newY = minY;
@@ -133,27 +137,14 @@
             newY = maxY;
         }
         
-        self.frame = CGRectMake(superview.center.x + _centerOffset.width - CGRectGetWidth(self.frame) / 2.f, newY, menuFrame.size.width, menuFrame.size.height);
-        
-        NSInteger count = [self itemCount];
-        for (NSInteger i = 0; i < count; i++)
-        {
-            MVScrollMenuItem *item = [self itemAtIndex:i];
-            CGPoint centerPointInMenuView = [superview convertPoint:CGPointMake(superview.center.x + _centerOffset.width, superview.center.y + _centerOffset.height) toView:item];
-            if ([item pointInside:centerPointInMenuView withEvent:nil])
-            {
-                [self setSelectedItem:item updateFrame:NO];
-                break;
-            }
-        }
-
+        self.frame = CGRectMake(x, newY, menuFrame.size.width, menuFrame.size.height);
     }
     else if (_menuDirection == MVScrollMenuDirectionHorizontal)
     {
         CGRect menuFrame = self.frame;
         CGFloat newX = menuFrame.origin.x + offset;
-        CGFloat minX = superview.center.x + _centerOffset.width - CGRectGetWidth(self.frame) + _itemSize.width / 2.f + _edgeInsets.right;
-        CGFloat maxX = superview.center.x + _centerOffset.width - _itemSize.width / 2.f - _edgeInsets.left;
+        CGFloat minX = superSize.width / 2.f + _centerOffset.width - CGRectGetWidth(self.frame) + _itemSize.width / 2.f + _edgeInsets.right;
+        CGFloat maxX = superSize.width / 2.f + _centerOffset.width - _itemSize.width / 2.f - _edgeInsets.left;
         if (newX < minX)
         {
             newX = minX;
@@ -163,22 +154,25 @@
             newX = maxX;
         }
         
-        self.frame = CGRectMake(newX, superview.center.y + _centerOffset.height - CGRectGetHeight(self.frame) / 2.f, menuFrame.size.width, menuFrame.size.height);
+        self.frame = CGRectMake(newX, y, menuFrame.size.width, menuFrame.size.height);
+    }
+    
+    CGPoint menuCenter = CGPointMake(superSize.width / 2.f + _centerOffset.width, superSize.height / 2.f + _centerOffset.height);
+    NSInteger count = [self itemCount];
+    for (NSInteger i = 0; i < count; i++)
+    {
+        MVScrollMenuItem *item = [self itemAtIndex:i];
         
-        NSInteger count = [self itemCount];
-        for (NSInteger i = 0; i < count; i++)
+        CGPoint menuCenterT = [superview convertPoint:menuCenter toView:item];
+        if ([item pointInside:menuCenterT withEvent:nil])
         {
-            MVScrollMenuItem *item = [self itemAtIndex:i];
-            CGPoint centerPointInMenuView = [superview convertPoint:CGPointMake(superview.center.x + _centerOffset.width, superview.center.y + _centerOffset.height) toView:item];
-            if ([item pointInside:centerPointInMenuView withEvent:nil])
-            {
-                [self setSelectedItem:item updateFrame:NO];
-                break;
-            }
+            [self setSelectedItem:item updateFrame:NO];
+            break;
         }
     }
     
-    _activeItem.frame = [self.superview convertRect:CGRectMake(self.superview.center.x + _centerOffset.width - _itemSize.width / 2.f, self.superview.center.y + _centerOffset.height - _itemSize.height / 2.0, _itemSize.width, _itemSize.height) toView:self];
+    CGPoint point = [superview convertPoint:CGPointMake(superSize.width / 2.f + _centerOffset.width, superSize.height / 2.f + _centerOffset.height) toView:self];
+    _activeItem.frame = CGRectMake(point.x - _itemSize.width / 2.f, point.y - _itemSize.height / 2.f, _itemSize.width, _itemSize.height);
 }
 
 - (NSInteger)itemCount
@@ -261,19 +255,22 @@
         if (updateFrame)
         {
             UIView *superview = self.superview;
+            CGSize superSize = superview.bounds.size;
+            CGFloat x = superSize.width / 2.f + _centerOffset.width;
+            CGFloat y = superSize.height / 2.f + _centerOffset.height;
             
             if (_menuDirection == MVScrollMenuDirectionVertical)
             {
-                CGFloat newY = superview.center.y + _centerOffset.height - (_edgeInsets.top + _itemSize.height * (index + .5f));
-                self.frame = CGRectMake(superview.center.x + _centerOffset.width - CGRectGetWidth(self.frame) / 2.f, newY, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
+                CGFloat newY = y - (_edgeInsets.top + _itemSize.height * (index + .5f));
+                self.frame = CGRectMake(x - CGRectGetWidth(self.frame) / 2.f, newY, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
             }
             else if (_menuDirection == MVScrollMenuDirectionHorizontal)
             {
-                CGFloat newX = superview.center.x + _centerOffset.width - (_edgeInsets.left + _itemSize.width * (index + .5f));
-                self.frame = CGRectMake(newX, superview.center.y + _centerOffset.height - CGRectGetHeight(self.frame) / 2.f, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
+                CGFloat newX = x - (_edgeInsets.left + _itemSize.width * (index + .5f));
+                self.frame = CGRectMake(newX, y - CGRectGetHeight(self.frame) / 2.f, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame));
             }
             
-            _activeItem.frame = [self.superview convertRect:CGRectMake(self.superview.center.x + _centerOffset.width - _itemSize.width / 2.f, self.superview.center.y + _centerOffset.height - _itemSize.height / 2.0, _itemSize.width, _itemSize.height) toView:self];
+            _activeItem.frame = [self.superview convertRect:CGRectMake(x - _itemSize.width / 2.f, y - _itemSize.height / 2.0, _itemSize.width, _itemSize.height) toView:self];
         }
         
         if (_selectedItem)

@@ -24,7 +24,7 @@
     
     UIButton *bbt = [[UIButton alloc] initWithFrame:CGRectZero];
     bbt.center = self.view.center;
-    bbt.bounds = CGRectMake(0.f, 0.f, 200.f, 200.f);
+    bbt.bounds = CGRectMake(0, 0, 200, 200);
     [bbt setTitle:@"ffkk" forState:UIControlStateNormal];
     [bbt setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     [bbt addTarget:self action:@selector(ffkkAction) forControlEvents:UIControlEventTouchUpInside];
@@ -38,9 +38,10 @@
     
     if (_scrollMenuView == nil)
     {
-        _scrollMenuView = [[MVScrollMenuView alloc] initWithSuperview:self.view.superview frame:CGRectMake(100, 100, 200, 200)];
+        _scrollMenuView = [[MVScrollMenuView alloc] initWithSuperview:self.view.superview frame:CGRectMake(0, 0, 200, 200)];
+        _scrollMenuView.center = self.view.superview.center;
         [_scrollMenuView.verticalMenu setMenuTitleArray:@[@"VOL", @"MACD", @"KDJ", @"RSI"]];
-        _scrollMenuView.verticalMenu.centerOffset = CGSizeMake(40.f, 40.f);
+//        _scrollMenuView.verticalMenu.centerOffset = CGSizeMake(40.f, 40.f);
         [_scrollMenuView.verticalMenu setSelectedItemIndex:3];
         //    _scrollMenuView.verticalMenu.backgroundColor = [UIColor grayColor];
         
@@ -51,8 +52,8 @@
 
 - (void)ffkkAction
 {
-    [_scrollMenuView.horizontalMenu setMenuTitleArray:@[@"ffkk", @"aabb", @"kkkk"]];
-    [_scrollMenuView.horizontalMenu setSelectedItemIndex:1];
+//    [_scrollMenuView.horizontalMenu setMenuTitleArray:@[@"ffkk", @"aabb", @"kkkk"]];
+//    [_scrollMenuView.horizontalMenu setSelectedItemIndex:1];
 }
 
 - (void)didReceiveMemoryWarning {
