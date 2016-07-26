@@ -238,7 +238,6 @@
     _activeItem.backgroundColor = _itemHighlightBackgroundColor;
     _activeItem.textColor = _itemHighlightTextColor;
     _activeItem.font = _itemFont;
-    _activeItem.frame = [self.superview convertRect:CGRectMake(self.superview.center.x + _centerOffset.width - _itemSize.width / 2.f, self.superview.center.y + _centerOffset.height - _itemSize.height / 2.0, _itemSize.width, _itemSize.height) toView:self];
     
     if (_selectedItemIndex < 0 || _selectedItemIndex > [_menuItemArray count] - 1)
     {
