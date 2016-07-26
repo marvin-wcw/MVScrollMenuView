@@ -134,10 +134,8 @@ typedef enum
         {
             if (_scrollDirection == MVScrollDirectionNone)
             {
-                CGFloat xOffset = point.x - _preLocation.x;
-                CGFloat yOffset = point.y - _preLocation.y;
-                
-                if ((fabs(yOffset) - fabs(xOffset)) >= 0)
+                CGPoint velocity = [panGesture velocityInView:self];
+                if (fabs(velocity.y) >= fabs(velocity.x))
                 {
                     _currentMenu = _verticalMenu;
                     _scrollDirection = MVScrollDirectionVertical;
@@ -179,6 +177,15 @@ typedef enum
             
             _scrollDirection = MVScrollDirectionNone;
             
+            if (_currentMenu == _verticalMenu)
+            {
+                NSLog(@"vertical menu select %ld", _currentMenu.selectedItemIndex);
+            }
+            else if (_currentMenu == _horizontalMenu)
+            {
+                NSLog(@"horizontal menu select %ld", _currentMenu.selectedItemIndex);
+            }
+
             if (_delegate && [_delegate respondsToSelector:@selector(scrollMenuView:didSelectItemIndex:)])
             {
                 [_delegate scrollMenuView:self didSelectItemIndex:_currentMenu.selectedItemIndex];
@@ -199,14 +206,40 @@ typedef enum
     return YES;
 }
 
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    CGPoint point = [gestureRecognizer locationInView:self];
+    
+    if (gestureRecognizer == _pressGesture)
+    {
+        return YES;
+    }
+    else if (gestureRecognizer == _panGesture)
+    {
+        CGPoint velocity = [_panGesture velocityInView:self];
+        if (fabs(velocity.y) >= fabs(velocity.x))
+        {
+            if (CGRectIsEmpty(_verticalMenu.hotArea) || CGRectContainsPoint(_verticalMenu.hotArea, point))
+            {
+                return YES;
+            }
+        }
+        else
+        {
+            if (CGRectIsEmpty(_verticalMenu.hotArea) || CGRectContainsPoint(_horizontalMenu.hotArea, point))
+            {
+                return YES;
+            }
+        }
+    }
+    
+    return NO;
+}
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
     if (gestureRecognizer == _pressGesture || gestureRecognizer == _panGesture)
     {
-        CGPoint point = [gestureRecognizer locationInView:self];
-        NSLog(@"%ld", gestureRecognizer.state);
-        NSLog(@"%lf, %lf", point.x, point.y);
-        
         return YES;
     }
     
